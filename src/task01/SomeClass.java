@@ -1,7 +1,10 @@
+package task01;
+
+
 /**
  * Some class
  */
-public class SomeClass {
+public class SomeClass implements Worker {
     /**
      * Entering method
      */

@@ -1,13 +1,19 @@
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+package task01;
+
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 /*
  * public interface Worker {
@@ -56,7 +62,7 @@ public class UtilClassLoader extends ClassLoader {
      * @throws IOException Input-Output Exception
      */
     private void addReadStringInFile(String addString) throws IOException {
-        Path pathClass = Paths.get("./src/SomeClass.java");
+        Path pathClass = Paths.get("./src/task01/SomeClass.java");
         List<String> writeLines = Files.readAllLines(pathClass, StandardCharsets.UTF_8);
 
         int position = writeLines.size() - 2;
@@ -97,33 +103,21 @@ public class UtilClassLoader extends ClassLoader {
     }
 
     /**
-     * Read and compile class: SomeClass.java
+     * Read compile and Run class: SomeClass.java
      *
      * @throws IOException          Input=Output exception
-     * @throws InterruptedException Interrupting exception
      */
-    void readAndCompileClass() throws IOException, InterruptedException {
+    void readAndCompileClass() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         readDoWork();
         addReadStringInFile(inputTextEntered.toString());
-        Process compile = Runtime.getRuntime().exec(" javac  -d " + " ./out/production/lesson09" + " ./src/SomeClass.java");
-        compile.waitFor();
-        Process compileClass = Runtime.getRuntime().exec("java " + "SomeClass");
-        compileClass.waitFor();
-    }
-
-    /**
-     * Load and run SomeClass.class
-     *
-     * @throws IllegalAccessException    Illegal access exception
-     * @throws InstantiationException    Instantiation exception
-     * @throws NoSuchMethodException     No such method exception
-     * @throws InvocationTargetException Invocation target exception
-     */
-    void loaderAndRunClass() throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-
-        Class<?> someClass = findClass("SomeClass");
-        Object obj = someClass.newInstance();
-        Method method = someClass.getMethod("doWork");
-        method.invoke(obj);
+        File root = new File("./src/task01/");
+        File sourceFile = new File(root, "SomeClass.java");
+        sourceFile.getParentFile().mkdirs();
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null, sourceFile.getAbsolutePath());
+        final URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()});
+        final Class<SomeClass> cls = (Class<SomeClass>) Class.forName("task01.SomeClass", true, classLoader);
+        Worker instance = cls.newInstance();
+        instance.doWork();
     }
 }

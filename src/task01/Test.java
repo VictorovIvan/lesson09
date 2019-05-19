@@ -1,3 +1,7 @@
+package task01;
+
+import task01.UtilClassLoader;
+
 /**
  * public interface Worker {
  * void doWork();
@@ -13,6 +17,6 @@ public class Test {
         UtilClassLoader loader = new UtilClassLoader();
 
         loader.readAndCompileClass();
-        loader.loaderAndRunClass();
+//        loader.loaderAndRunClass();
     }
 }
